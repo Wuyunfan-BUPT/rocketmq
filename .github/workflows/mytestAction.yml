@@ -1,0 +1,92 @@
+name: TEST_ACTION
+
+on: [push]
+
+concurrency:
+  group: rocketmq-${{ github.ref }}
+
+env:
+  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+  DOCKER_REPO: apache/rocketmq-ci
+
+jobs:
+  dist-tar:
+    name: Build dist tar
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "8"
+          cache: "maven"
+      - name: Build distribution tar
+        run: |
+          mvn -Prelease-all -DskipTests -Dspotbugs.skip=true clean install -U
+      - uses: actions/load-artifact@v3
+        name: Upload distribution tar
+        with:
+          name: rocketmq
+          path: distribution/target/rocketmq*/rocketmq*
+  
+  docker:
+    if: ${{ success() }}
+    name: Docker images
+    needs: [dist-tar]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        base-image: ["ubuntu"]
+        java-version: ["8"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: apache/rocketmq-docker.git
+          ref: master
+          path: rocketmq-docker
+      - uses: actions/download-artifact@v3
+        name: Download distribution tar
+        with:
+          name: rocketmq
+          path: rocketmq
+      - name: docker-login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and save docker images
+        id: build-images
+        run: |
+          cd rocketmq-docker/image-build-ci
+          verson=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
+          echo ${version}
+          mkdir versionlist
+          touch versionlist/"${version}-'echo ${{ matrix.base-image }} | sed -e "s/:/-/g"'"
+          sh ./build-image-local.sh ${version} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
+      - uses: actions/upload-artifact@v3
+        name: Upload distribution tar
+        with:
+          name: versionlist
+          path: rocketmq-docker/image-build-ci/versionlist/*
+      - name: echo github.ref
+        run: echo "${{ github.ref }}"
+      - name: echo env.REGISTRY
+        run: echo "${{ env.REGISTRY }}"
+      - name: echo github.event.pull_request.number
+        run: echo "github.event.pull_request.number"
+      - name: echo github.ref_name
+        run: echo "github.ref_name"
+      - name: echo uuidgen
+        run: echo "$(uuidgen)"
+      - name: echo version
+        run: echo "${version}"
+      - name: echo DOCKER_REPO
+        run: echo "${DOCKER_REPO}"
+    
+          
+    
