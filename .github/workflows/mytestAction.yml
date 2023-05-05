@@ -73,11 +73,11 @@ jobs:
         id: build-images
         run: |
           cd rocketmq-docker/image-build-ci
-          verson=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
-          echo ${version}
+          version=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
+          echo ${{ version }}
           echo ${{ github.event.pull_request.number }}
           echo ${{ github.ref_name }}
-          echo ${uuidgen)
+          echo ${{ uuidgen }}
           mkdir versionlist
           touch versionlist/"${version}-`echo ${{ matrix.base-image }} | sed -e "s/:/-/g"`"
           sh ./build-image-local.sh ${version} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
