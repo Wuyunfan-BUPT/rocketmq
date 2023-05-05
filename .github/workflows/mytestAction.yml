@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: print rocketmq-{github.ref}
         run: echo "rocketmq-${{ github.ref }}"
+      - name: print env.REGISTRY
+        run: echo "${{ env.REGISTRY }}"
       - uses: actions/checkout@v3
         with:
           submodules: true
