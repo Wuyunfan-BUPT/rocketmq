@@ -73,7 +73,7 @@ jobs:
         id: build-images
         run: |
           cd rocketmq-docker/image-build-ci
-          version=${{ github.event.pull_request.number || github.ref_name }}-${{ uuidgen }}
+          version=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
           echo ${{ version }} 
           echo ${{ github.event.pull_request.number }}
           echo ${{ github.ref_name }}
