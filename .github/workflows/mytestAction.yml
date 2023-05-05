@@ -73,14 +73,14 @@ jobs:
         id: build-images
         run: |
           cd rocketmq-docker/image-build-ci
-          version=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
-          echo ${{ version }} 
+          verson=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
+          echo ${{ verson }} 
           echo ${{ github.event.pull_request.number }}
           echo ${{ github.ref_name }}
           echo ${{ uuidgen }}
           mkdir versionlist
-          touch versionlist/"${version}-`echo ${{ matrix.base-image }} | sed -e "s/:/-/g"`"
-          sh ./build-image-local.sh ${version} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
+          touch versionlist/"${verson}-`echo ${{ matrix.base-image }} | sed -e "s/:/-/g"`"
+          sh ./build-image-local.sh ${verson} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
         with:
