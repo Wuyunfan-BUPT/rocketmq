@@ -7,7 +7,7 @@ concurrency:
 
 env:
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
-  DOCKER_REPO: apache/rocketmq-ci
+  DOCKER_REPO: wuyfeedocker/rocketm-ci
 
 jobs:
   dist-tar:
@@ -86,6 +86,8 @@ jobs:
         with:
           name: versionlist
           path: rocketmq-docker/image-build-ci/versionlist/*
+      - name: ls rocketmq-docker/image-build-ci/versionlist
+        run: ls rocketmq-docker/image-build-ci/versionlist/
       - name: echo github.ref
         run: echo "${{ github.ref }}"
       - name: echo env.REGISTRY
