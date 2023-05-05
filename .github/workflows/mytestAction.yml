@@ -19,6 +19,12 @@ jobs:
         run: echo "rocketmq-${{ github.ref }}"
       - name: print env.REGISTRY
         run: echo "${{ env.REGISTRY }}"
+      - name: print github.event.pull_request.number
+        run: echo "${{ github.event.pull_request.number }}"
+      - name: print github.ref_name
+        run: echo "${{ github.ref_name }}"
+      - name: print uuidgen
+        run: echo "$(uuidgen)"
       - uses: actions/checkout@v3
         with:
           submodules: true
@@ -69,8 +75,11 @@ jobs:
           cd rocketmq-docker/image-build-ci
           verson=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
           echo ${version}
+          echo ${{ github.event.pull_request.number }}
+          echo ${{ github.ref_name }}
+          echo ${uuidgen)
           mkdir versionlist
-          touch versionlist/"${version}-'echo ${{ matrix.base-image }} | sed -e "s/:/-/g"'"
+          touch versionlist/"${version}-`echo ${{ matrix.base-image }} | sed -e "s/:/-/g"`"
           sh ./build-image-local.sh ${version} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
@@ -91,6 +100,27 @@ jobs:
         run: echo "${version}"
       - name: echo DOCKER_REPO
         run: echo "${DOCKER_REPO}"
+  list-version:
+    if: always()
+    name: List version
+    needs: [docker]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version-json: ${{ steps.show_versions.outputs.version-json }}
+    steps:
+      - uses: actions/download-artifact@v3
+        name: Download versionlist
+        with:
+          name: versionlist
+          path: versionlist
+      - name: Show versions
+        id: show_versions
+        run: | 
+          a=(`ls versionlist`)
+          printf '%s\n' "${a[@]}" | jq -R . | jq -s .
+          echo version-json=`printf '%s\n' "${a[@]}" | jq -R . | jq -s .` >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
     
           
     
