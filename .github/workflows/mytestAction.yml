@@ -8,6 +8,8 @@ concurrency:
 env:
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
   DOCKER_REPO: apache/rocketmq-ci
+  USER_NAME: wuyfee
+  PASS_WORD: 12345
 
 jobs:
   dist-tar:
@@ -57,8 +59,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ env.USER_NAME }}
+          password: ${{ env.PASS_WORD }}
       - name: Build and save docker images
         id: build-images
         run: |
