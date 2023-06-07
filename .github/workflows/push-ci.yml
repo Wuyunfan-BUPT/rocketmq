@@ -111,7 +111,7 @@ jobs:
       - uses: Wuyunfan-BUPT/test-tools@main
         name: Deploy, run e2etest and clean rocketmq
         with:
-          testRepo: "nacos"
+          testRepo: "rocketmq"
           action: "deploy"
           version: "${{ matrix.version }}"
           askConfig: "${{ secrets.ASK_CONFIG_VIRGINA }}"
