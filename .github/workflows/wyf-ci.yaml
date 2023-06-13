@@ -114,7 +114,7 @@ jobs:
           yamlString: |
             action: deploy
             namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
-            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
             repoName: nacos
             velaUsername: ${{ secrets.VELA_USERNAME }}
@@ -155,8 +155,8 @@ jobs:
           yamlString: |
             action: test
             namespace: nacos-${{ github.run_id }}-0
-            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-            PI_VERSION: v1
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            API_VERSION: v1
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
@@ -204,8 +204,8 @@ jobs:
           yamlString: |
             action: test
             namespace: nacos-${{ github.run_id }}-0
-            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-            PI_VERSION: v1
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            API_VERSION: v1
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
@@ -253,7 +253,7 @@ jobs:
           yamlString: |
             action: test
             namespace: nacos-${{ github.run_id }}-0
-            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             PI_VERSION: v1
             KIND: Pod
             RESTART_POLICY: Never
@@ -303,6 +303,6 @@ jobs:
           yamlString: |
             action: clean
             namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
-            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             velaUsername: ${{ secrets.VELA_USERNAME }}
             velauxPassword: ${{ secrets.VELA_PASSWORD }}
