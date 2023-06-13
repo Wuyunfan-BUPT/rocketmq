@@ -115,6 +115,7 @@ jobs:
             action: deploy
             namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            waitTimes: 1200
             velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
             repoName: nacos
             velauxUsername: ${{ secrets.VELA_USERNAME }}
