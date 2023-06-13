@@ -117,7 +117,7 @@ jobs:
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
             repoName: nacos
-            velaUsername: ${{ secrets.VELA_USERNAME }}
+            velauxUsername: ${{ secrets.VELA_USERNAME }}
             velauxPassword: ${{ secrets.VELA_PASSWORD }}
             helm:
               chart: ./rocketmq-k8s-helm
@@ -254,7 +254,7 @@ jobs:
             action: test
             namespace: nacos-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
-            PI_VERSION: v1
+            API_VERSION: v1
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
@@ -304,5 +304,5 @@ jobs:
             action: clean
             namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
-            velaUsername: ${{ secrets.VELA_USERNAME }}
+            velauxUsername: ${{ secrets.VELA_USERNAME }}
             velauxPassword: ${{ secrets.VELA_PASSWORD }}
