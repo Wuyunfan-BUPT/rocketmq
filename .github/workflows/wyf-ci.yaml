@@ -110,34 +110,35 @@ jobs:
     steps:
       - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: Deploy rocketmq
-        with: |
-          action: deploy
-          namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
-          ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-          velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
-          repoName: nacos
-          velaUsername: ${{ secrets.VELA_USERNAME }}
-          velauxPassword: ${{ secrets.VELA_PASSWORD }}
-          helm:
-            chart: ./rocketmq-k8s-helm
-            git:
-              branch: master
-          repoType: git
-          retries: 3
-          url: https://ghproxy.com/https://github.com/apache/rocketmq-docker.git
-          values:
-            nameserver:
-              image:
-                repository: ${{env.DOCKER_REPO}}
-                tag: ${{ matrix.version }}
-            broker:
-              image:
-                repository: ${{env.DOCKER_REPO}}
-                tag: ${{ matrix.version }}
-            proxy:
-              image:
-                repository: ${{env.DOCKER_REPO}}
-                tag: ${{ matrix.version }}
+        with: 
+          yamlString: |
+            action: deploy
+            namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
+            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
+            repoName: nacos
+            velaUsername: ${{ secrets.VELA_USERNAME }}
+            velauxPassword: ${{ secrets.VELA_PASSWORD }}
+            helm:
+              chart: ./rocketmq-k8s-helm
+              git:
+                branch: master
+            repoType: git
+            retries: 3
+            url: https://ghproxy.com/https://github.com/apache/rocketmq-docker.git
+            values:
+              nameserver:
+                image:
+                  repository: ${{env.DOCKER_REPO}}
+                  tag: ${{ matrix.version }}
+              broker:
+                image:
+                  repository: ${{env.DOCKER_REPO}}
+                  tag: ${{ matrix.version }}
+              proxy:
+                image:
+                  repository: ${{env.DOCKER_REPO}}
+                  tag: ${{ matrix.version }}
   test-e2e-grpc-java:
     if: ${{ success() }}
     name: Test E2E grpc java
@@ -150,27 +151,28 @@ jobs:
     steps:
       - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: e2e test
-        with: |
-          action: test
-          namespace: nacos-${{ github.run_id }}-0
-          ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-          PI_VERSION: v1
-          KIND: Pod
-          RESTART_POLICY: Never
-          ENV:
-            CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
-            BRANCH: master
-            CODE_PATH: java/e2e
-            CMD: mvn -B test
-            ALL_IP: null
-          CONTAINER:
-            IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
-            RESOURCE_LIMITS:
-              cpu: 8
-              memory: 8Gi
-            RESOURCE_REQUIRE:
-              cpu: 8
-              memory: 8Gi
+        with:
+          yamlString: |
+            action: test
+            namespace: nacos-${{ github.run_id }}-0
+            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            PI_VERSION: v1
+            KIND: Pod
+            RESTART_POLICY: Never
+            ENV:
+              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              BRANCH: master
+              CODE_PATH: java/e2e
+              CMD: mvn -B test
+              ALL_IP: null
+            CONTAINER:
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              RESOURCE_LIMITS:
+                cpu: 8
+                memory: 8Gi
+              RESOURCE_REQUIRE:
+                cpu: 8
+                memory: 8Gi
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always() # always run even if the previous step fails
@@ -198,27 +200,28 @@ jobs:
     steps:
       - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: e2e test
-        with: |
-          action: test
-          namespace: nacos-${{ github.run_id }}-0
-          ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-          PI_VERSION: v1
-          KIND: Pod
-          RESTART_POLICY: Never
-          ENV:
-            CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
-            BRANCH: master
-            CODE_PATH: golang 
-            CMD: cd ../common &&  mvn -Prelease -DskipTests clean package -U && cd ../rocketmq-admintools && source bin/env.sh && cd ../golang && go get -u github.com/apache/rocketmq-clients/golang && gotestsum --junitfile ./target/surefire-reports/TEST-report.xml ./mqgotest/... -timeout 2m  -v
-            ALL_IP: null
-          CONTAINER:
-            IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
-            RESOURCE_LIMITS:
-              cpu: 8
-              memory: 8Gi
-            RESOURCE_REQUIRE:
-              cpu: 8
-              memory: 8Gi
+        with: 
+          yamlString: |
+            action: test
+            namespace: nacos-${{ github.run_id }}-0
+            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            PI_VERSION: v1
+            KIND: Pod
+            RESTART_POLICY: Never
+            ENV:
+              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              BRANCH: master
+              CODE_PATH: golang 
+              CMD: cd ../common &&  mvn -Prelease -DskipTests clean package -U && cd ../rocketmq-admintools && source bin/env.sh && cd ../golang && go get -u github.com/apache/rocketmq-clients/golang && gotestsum --junitfile ./target/surefire-reports/TEST-report.xml ./mqgotest/... -timeout 2m  -v
+              ALL_IP: null
+            CONTAINER:
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              RESOURCE_LIMITS:
+                cpu: 8
+                memory: 8Gi
+              RESOURCE_REQUIRE:
+                cpu: 8
+                memory: 8Gi
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
         if: always() # always run even if the previous step fails
@@ -246,27 +249,28 @@ jobs:
     steps:
       - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: e2e test
-        with: |
-          action: test
-          namespace: nacos-${{ github.run_id }}-0
-          ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-          PI_VERSION: v1
-          KIND: Pod
-          RESTART_POLICY: Never
-          ENV:
-            CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
-            BRANCH: master
-            CODE_PATH: java/e2e-v4
-            CMD: mvn -B test
-            ALL_IP: null
-          CONTAINER:
-            IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
-            RESOURCE_LIMITS:
-              cpu: 8
-              memory: 8Gi
-            RESOURCE_REQUIRE:
-              cpu: 8
-              memory: 8Gi
+        with:
+          yamlString: |
+            action: test
+            namespace: nacos-${{ github.run_id }}-0
+            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            PI_VERSION: v1
+            KIND: Pod
+            RESTART_POLICY: Never
+            ENV:
+              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              BRANCH: master
+              CODE_PATH: java/e2e-v4
+              CMD: mvn -B test
+              ALL_IP: null
+            CONTAINER:
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              RESOURCE_LIMITS:
+                cpu: 8
+                memory: 8Gi
+              RESOURCE_REQUIRE:
+                cpu: 8
+                memory: 8Gi
            
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
@@ -295,9 +299,10 @@ jobs:
     steps:
       - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: clean
-        with: |
-          action: clean
-          namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
-          ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-          velaUsername: ${{ secrets.VELA_USERNAME }}
-          velauxPassword: ${{ secrets.VELA_PASSWORD }}
+        with:
+          yamlString: |
+            action: clean
+            namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
+            ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            velaUsername: ${{ secrets.VELA_USERNAME }}
+            velauxPassword: ${{ secrets.VELA_PASSWORD }}
