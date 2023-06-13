@@ -108,13 +108,13 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: apache/rocketmq-test-tool@7d84d276ad7755b1dc5cf9657a7a9bff6ae6d288
+      - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: Deploy rocketmq
         with: |
           action: deploy
           namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
           ask-config: ${{ secrets.ASK_CONFIG_VIRGINA }}
-          velaAppDescription: rocketmq-${{ GITHUB_WORKFLOW }}-${{ GITHUB_RUN_ID }}@${{ matrix.version }}
+          velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
           repoName: nacos
           velaUsername: ${{ secrets.VELA_USERNAME }}
           velauxPassword: ${{ secrets.VELA_PASSWORD }}
@@ -148,7 +148,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: apache/rocketmq-test-tool@7d84d276ad7755b1dc5cf9657a7a9bff6ae6d288
+      - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: e2e test
         with: |
           action: test
@@ -196,7 +196,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: apache/rocketmq-test-tool@7d84d276ad7755b1dc5cf9657a7a9bff6ae6d288
+      - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: e2e test
         with: |
           action: test
@@ -244,7 +244,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: apache/rocketmq-test-tool@7d84d276ad7755b1dc5cf9657a7a9bff6ae6d288
+      - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: e2e test
         with: |
           action: test
@@ -293,7 +293,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: apache/rocketmq-test-tool@7d84d276ad7755b1dc5cf9657a7a9bff6ae6d288
+      - uses: Wuyunfan-BUPT/test-tools@mergeTest
         name: clean
         with: |
           action: clean
