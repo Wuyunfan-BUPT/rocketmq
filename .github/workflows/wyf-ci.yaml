@@ -123,22 +123,22 @@ jobs:
               chart: ./rocketmq-k8s-helm
               git:
                 branch: master
-            repoType: git
-            retries: 3
-            url: https://ghproxy.com/https://github.com/apache/rocketmq-docker.git
-            values:
-              nameserver:
-                image:
-                  repository: ${{env.DOCKER_REPO}}
-                  tag: ${{ matrix.version }}
-              broker:
-                image:
-                  repository: ${{env.DOCKER_REPO}}
-                  tag: ${{ matrix.version }}
-              proxy:
-                image:
-                  repository: ${{env.DOCKER_REPO}}
-                  tag: ${{ matrix.version }}
+              repoType: git
+              retries: 3
+              url: https://ghproxy.com/https://github.com/apache/rocketmq-docker.git
+              values:
+                nameserver:
+                  image:
+                    repository: ${{env.DOCKER_REPO}}
+                    tag: ${{ matrix.version }}
+                broker:
+                  image:
+                    repository: ${{env.DOCKER_REPO}}
+                    tag: ${{ matrix.version }}
+                proxy:
+                  image:
+                    repository: ${{env.DOCKER_REPO}}
+                    tag: ${{ matrix.version }}
   test-e2e-grpc-java:
     if: ${{ success() }}
     name: Test E2E grpc java
