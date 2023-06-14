@@ -213,7 +213,10 @@ jobs:
               CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
               BRANCH: master
               CODE_PATH: golang 
-              CMD: cd ../common &&  mvn -Prelease -DskipTests clean package -U && cd ../rocketmq-admintools && source bin/env.sh && cd ../golang && go get -u github.com/apache/rocketmq-clients/golang && gotestsum --junitfile ./target/surefire-reports/TEST-report.xml ./mqgotest/... -timeout 2m  -v
+              CMD: |
+                cd ../common &&  mvn -Prelease -DskipTests clean package -U 
+                cd ../rocketmq-admintools && source bin/env.sh 
+                cd ../golang && go get -u github.com/apache/rocketmq-clients/golang && gotestsum --junitfile ./target/surefire-reports/TEST-report.xml ./mqgotest/... -timeout 2m  -v
               ALL_IP: null
             CONTAINER:
               IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
