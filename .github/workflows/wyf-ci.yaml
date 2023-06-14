@@ -113,7 +113,7 @@ jobs:
         with: 
           yamlString: |
             action: deploy
-            namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
+            namespace: rocketmq-${{ github.run_id }}-${{ strategy.job-index }}
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             waitTimes: 1200
             velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
@@ -155,7 +155,7 @@ jobs:
         with:
           yamlString: |
             action: test
-            namespace: nacos-${{ github.run_id }}-0
+            namespace: rocketmq-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             API_VERSION: v1
             KIND: Pod
@@ -204,7 +204,7 @@ jobs:
         with: 
           yamlString: |
             action: test
-            namespace: nacos-${{ github.run_id }}-0
+            namespace: rocketmq-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             API_VERSION: v1
             KIND: Pod
@@ -253,7 +253,7 @@ jobs:
         with:
           yamlString: |
             action: test
-            namespace: nacos-${{ github.run_id }}-0
+            namespace: rocketmq-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             API_VERSION: v1
             KIND: Pod
@@ -303,7 +303,7 @@ jobs:
         with:
           yamlString: |
             action: clean
-            namespace: nacos-${{ github.run_id }}-${{ strategy.job-index }}
+            namespace: rocketmq-${{ github.run_id }}-${{ strategy.job-index }}
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             velauxUsername: ${{ secrets.VELA_USERNAME }}
             velauxPassword: ${{ secrets.VELA_PASSWORD }}
