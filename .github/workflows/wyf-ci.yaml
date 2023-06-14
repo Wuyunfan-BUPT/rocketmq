@@ -108,7 +108,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@mergeTest
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: Deploy rocketmq
         with: 
           yamlString: |
@@ -150,7 +150,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@mergeTest
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with:
           yamlString: |
@@ -199,7 +199,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@mergeTest
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with: 
           yamlString: |
@@ -251,7 +251,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@mergeTest
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with:
           yamlString: |
@@ -301,7 +301,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@mergeTest
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: clean
         with:
           yamlString: |
