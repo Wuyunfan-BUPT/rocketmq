@@ -117,7 +117,7 @@ jobs:
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             waitTimes: 1200
             velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
-            repoName: nacos
+            repoName: rocketmq
             velauxUsername: ${{ secrets.VELA_USERNAME }}
             velauxPassword: ${{ secrets.VELA_PASSWORD }}
             helm:
