@@ -176,6 +176,10 @@ jobs:
               RESOURCE_REQUIRE:
                 cpu: 8
                 memory: 8Gi
+      - name: ls
+        run: |
+          ls
+          ls /root
       - uses: actions/upload-artifact@v3
         if: always()
         name: Upload result.md
