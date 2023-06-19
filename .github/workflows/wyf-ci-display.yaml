@@ -155,6 +155,8 @@ jobs:
         with:
           yamlString: |
             action: test
+            CODE_PATH: java/e2e
+            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
             namespace: rocketmq-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             API_VERSION: v1
@@ -174,14 +176,6 @@ jobs:
               RESOURCE_REQUIRE:
                 cpu: 8
                 memory: 8Gi
-      - name: Publish Test Report
-        uses: Wuyunfan-BUPT/test-tools@add_display_tools
-        if: always() # always run even if the previous step fails
-        with:
-          yamlString: |
-            action: report
-            CODE_PATH: java/e2e
-            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
       - uses: actions/upload-artifact@v3
         if: always()
         name: Upload result.md
@@ -210,6 +204,8 @@ jobs:
         with: 
           yamlString: |
             action: test
+            CODE_PATH: java/e2e
+            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
             namespace: rocketmq-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             API_VERSION: v1
@@ -232,14 +228,6 @@ jobs:
               RESOURCE_REQUIRE:
                 cpu: 8
                 memory: 8Gi
-      - name: Publish Test Report
-        uses: Wuyunfan-BUPT/test-tools@add_display_tools
-        if: always() # always run even if the previous step fails
-        with:
-          yamlString: |
-            action: report
-            CODE_PATH: java/e2e
-            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
       - uses: actions/upload-artifact@v3
         if: always()
         name: Upload result.md
@@ -268,6 +256,8 @@ jobs:
         with:
           yamlString: |
             action: test
+            CODE_PATH: java/e2e
+            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
             namespace: rocketmq-${{ github.run_id }}-0
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
             API_VERSION: v1
@@ -287,15 +277,6 @@ jobs:
               RESOURCE_REQUIRE:
                 cpu: 8
                 memory: 8Gi
-           
-      - name: Publish Test Report
-        uses: Wuyunfan-BUPT/test-tools@add_display_tools
-        if: always() # always run even if the previous step fails
-        with:
-          yamlString: |
-            action: report
-            CODE_PATH: java/e2e
-            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
       - uses: actions/upload-artifact@v3
         if: always()
         name: Upload result.md
