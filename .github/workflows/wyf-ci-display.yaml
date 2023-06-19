@@ -1,0 +1,330 @@
+name: wyf-PUSH-CI-test 
+
+on:
+  push:
+    branches: [master, develop]
+  #schedule:
+  #  - cron: "0 18 * * *" # TimeZone: UTC 0
+
+concurrency:
+  group: rocketmq-${{ github.ref }}
+
+env:
+  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+  DOCKER_REPO: wuyfeedocker/rocketm-ci
+
+jobs:
+  dist-tar:
+    name: Build dist tar
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "8"
+          cache: "maven"
+      - name: Build distribution tar
+        run: |
+          mvn -Prelease-all -DskipTests -Dspotbugs.skip=true clean install -U
+      - uses: actions/upload-artifact@v3
+        name: Upload distribution tar
+        with:
+          name: rocketmq
+          path: distribution/target/rocketmq*/rocketmq*
+
+  docker:
+    if: ${{ success() }}
+    name: Docker images
+    needs: [dist-tar]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        base-image: ["ubuntu"]
+        java-version: ["8"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: apache/rocketmq-docker.git
+          ref: master
+          path: rocketmq-docker
+      - uses: actions/download-artifact@v3
+        name: Download distribution tar
+        with:
+          name: rocketmq
+          path: rocketmq
+      - name: docker-login
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and save docker images
+        id: build-images
+        run: |
+          cd rocketmq-docker/image-build-ci
+          version=${{ github.event.pull_request.number || github.ref_name }}-$(uuidgen)
+          mkdir versionlist
+          touch versionlist/"${version}-`echo ${{ matrix.base-image }} | sed -e "s/:/-/g"`"
+          sh ./build-image-local.sh ${version} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
+      - uses: actions/upload-artifact@v3
+        name: Upload distribution tar
+        with:
+          name: versionlist
+          path: rocketmq-docker/image-build-ci/versionlist/*
+
+  
+  list-version:
+    if: always()
+    name: List version
+    needs: [docker]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version-json: ${{ steps.show_versions.outputs.version-json }}
+    steps:
+      - uses: actions/download-artifact@v3
+        name: Download versionlist
+        with:
+          name: versionlist
+          path: versionlist
+      - name: Show versions
+        id: show_versions
+        run: | 
+          a=(`ls versionlist`)
+          printf '%s\n' "${a[@]}" | jq -R . | jq -s .
+          echo version-json=`printf '%s\n' "${a[@]}" | jq -R . | jq -s .` >> $GITHUB_OUTPUT
+  deploy:
+    if: ${{ success() }}
+    name: Deploy RocketMQ
+    needs: [list-version,docker]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
+    steps:
+      - uses: Wuyunfan-BUPT/test-tools@main
+        name: Deploy rocketmq
+        with: 
+          yamlString: |
+            action: deploy
+            namespace: rocketmq-${{ github.run_id }}-${{ strategy.job-index }}
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            waitTimes: 1200
+            velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
+            repoName: rocketmq
+            velauxUsername: ${{ secrets.VELA_USERNAME }}
+            velauxPassword: ${{ secrets.VELA_PASSWORD }}
+            helm:
+              chart: ./rocketmq-k8s-helm
+              git:
+                branch: master
+              repoType: git
+              retries: 3
+              url: https://ghproxy.com/https://github.com/apache/rocketmq-docker.git
+              values:
+                nameserver:
+                  image:
+                    repository: ${{env.DOCKER_REPO}}
+                    tag: ${{ matrix.version }}
+                broker:
+                  image:
+                    repository: ${{env.DOCKER_REPO}}
+                    tag: ${{ matrix.version }}
+                proxy:
+                  image:
+                    repository: ${{env.DOCKER_REPO}}
+                    tag: ${{ matrix.version }}
+  test-e2e-grpc-java:
+    if: ${{ success() }}
+    name: Test E2E grpc java
+    needs: [list-version, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
+    steps:
+      - uses: Wuyunfan-BUPT/test-tools@main
+        name: e2e test
+        with:
+          yamlString: |
+            action: test
+            namespace: rocketmq-${{ github.run_id }}-0
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            API_VERSION: v1
+            KIND: Pod
+            RESTART_POLICY: Never
+            ENV:
+              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              BRANCH: master
+              CODE_PATH: java/e2e
+              CMD: mvn -B test
+              ALL_IP: null
+            CONTAINER:
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              RESOURCE_LIMITS:
+                cpu: 8
+                memory: 8Gi
+              RESOURCE_REQUIRE:
+                cpu: 8
+                memory: 8Gi
+      - name: Publish Test Report
+        uses: Wuyunfan-BUPT/test-tools@add_display_tools
+        if: always() # always run even if the previous step fails
+        with:
+          yamlString: |
+            action: report
+            CODE_PATH: java/e2e
+            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload result.md
+        with:
+          name: test-e2e-grpc-java-result.md
+          path: result.md
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload test log
+        with:
+          name: test-e2e-grpc-java-log.txt
+          path: testlog.txt
+          
+  test-e2e-golang:
+    if: ${{ success() }}
+    name: Test E2E golang
+    needs: [list-version, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
+    steps:
+      - uses: Wuyunfan-BUPT/test-tools@main
+        name: e2e test
+        with: 
+          yamlString: |
+            action: test
+            namespace: rocketmq-${{ github.run_id }}-0
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            API_VERSION: v1
+            KIND: Pod
+            RESTART_POLICY: Never
+            ENV:
+              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              BRANCH: master
+              CODE_PATH: golang 
+              CMD: |
+                cd ../common &&  mvn -Prelease -DskipTests clean package -U 
+                cd ../rocketmq-admintools && source bin/env.sh 
+                cd ../golang && go get -u github.com/apache/rocketmq-clients/golang && gotestsum --junitfile ./target/surefire-reports/TEST-report.xml ./mqgotest/... -timeout 2m  -v
+              ALL_IP: null
+            CONTAINER:
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              RESOURCE_LIMITS:
+                cpu: 8
+                memory: 8Gi
+              RESOURCE_REQUIRE:
+                cpu: 8
+                memory: 8Gi
+      - name: Publish Test Report
+        uses: Wuyunfan-BUPT/test-tools@add_display_tools
+        if: always() # always run even if the previous step fails
+        with:
+          yamlString: |
+            action: report
+            CODE_PATH: java/e2e
+            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload result.md
+        with:
+          name: test-e2e-grpc-java-result.md
+          path: result.md
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload test log
+        with:
+          name: test-e2e-golang-log.txt
+          path: testlog.txt
+          
+  test-e2e-remoting-java:
+    if: ${{ success() }}
+    name: Test E2E remoting java
+    needs: [ list-version, deploy ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
+    steps:
+      - uses: Wuyunfan-BUPT/test-tools@main
+        name: e2e test
+        with:
+          yamlString: |
+            action: test
+            namespace: rocketmq-${{ github.run_id }}-0
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            API_VERSION: v1
+            KIND: Pod
+            RESTART_POLICY: Never
+            ENV:
+              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              BRANCH: master
+              CODE_PATH: java/e2e-v4
+              CMD: mvn -B test
+              ALL_IP: null
+            CONTAINER:
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              RESOURCE_LIMITS:
+                cpu: 8
+                memory: 8Gi
+              RESOURCE_REQUIRE:
+                cpu: 8
+                memory: 8Gi
+           
+      - name: Publish Test Report
+        uses: Wuyunfan-BUPT/test-tools@add_display_tools
+        if: always() # always run even if the previous step fails
+        with:
+          yamlString: |
+            action: report
+            CODE_PATH: java/e2e
+            REPO_URL: https://github.com/apache/rocketmq-e2e/tree/main/java/e2e/src/test/java
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload result.md
+        with:
+          name: test-e2e-grpc-java-result.md
+          path: result.md
+      - uses: actions/upload-artifact@v3
+        if: always()
+        name: Upload test log
+        with:
+          name: test-e2e-remoting-java-log.txt
+          path: testlog.txt
+
+  clean:
+    if: always()
+    name: Clean
+    needs: [list-version, test-e2e-grpc-java, test-e2e-golang, test-e2e-remoting-java]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
+    steps:
+      - uses: Wuyunfan-BUPT/test-tools@main
+        name: clean
+        with:
+          yamlString: |
+            action: clean
+            namespace: rocketmq-${{ github.run_id }}-${{ strategy.job-index }}
+            askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
+            velauxUsername: ${{ secrets.VELA_USERNAME }}
+            velauxPassword: ${{ secrets.VELA_PASSWORD }}
