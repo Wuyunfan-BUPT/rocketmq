@@ -168,7 +168,7 @@ jobs:
               CMD: mvn -B test
               ALL_IP: null
             CONTAINER:
-              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.4
               RESOURCE_LIMITS:
                 cpu: 8
                 memory: 8Gi
@@ -217,7 +217,7 @@ jobs:
                 cd ../golang && go get -u github.com/apache/rocketmq-clients/golang && gotestsum --junitfile ./target/surefire-reports/TEST-report.xml ./mqgotest/... -timeout 2m  -v
               ALL_IP: null
             CONTAINER:
-              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.4
               RESOURCE_LIMITS:
                 cpu: 8
                 memory: 8Gi
@@ -263,7 +263,7 @@ jobs:
               CMD: mvn -B test
               ALL_IP: null
             CONTAINER:
-              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.4
               RESOURCE_LIMITS:
                 cpu: 8
                 memory: 8Gi
@@ -312,7 +312,7 @@ jobs:
                 cd ../csharp/rocketmq-client-csharp-tests/ && dotnet test --logger:"junit;LogFilePath=../target/surefire-reports/TEST-result.xml" -l "console;verbosity=detailed"
               ALL_IP: null
             CONTAINER:
-              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.3
+              IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.4
               RESOURCE_LIMITS:
                 cpu: 8
                 memory: 8Gi
