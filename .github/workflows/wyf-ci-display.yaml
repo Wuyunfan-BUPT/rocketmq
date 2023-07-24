@@ -12,6 +12,7 @@ concurrency:
 env:
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
   DOCKER_REPO: wuyfeedocker/rocketm-ci
+  TEST_REPO_NAME: apache/rocketmq-e2e
 
 jobs:
   dist-tar:
@@ -161,8 +162,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              REPO_NAME: ${TEST_REPO_NAME}
+              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
               BRANCH: master
               CODE_PATH: java/e2e
               CMD: mvn -B test
@@ -207,8 +208,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              REPO_NAME: ${TEST_REPO_NAME}
+              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
               BRANCH: master
               CODE_PATH: golang 
               CMD: |
@@ -256,8 +257,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              REPO_NAME: ${TEST_REPO_NAME}
+              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
               BRANCH: master
               CODE_PATH: java/e2e-v4
               CMD: mvn -B test
@@ -302,8 +303,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/apache/rocketmq-e2e
+              REPO_NAME: ${TEST_REPO_NAME}
+              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
               BRANCH: master
               CODE_PATH: csharp
               CMD: ｜
