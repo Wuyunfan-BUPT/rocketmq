@@ -307,10 +307,10 @@ jobs:
               CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
               CODE_PATH: csharp
-              CMD: ｜
+              CMD: |
                 cd ../common &&  mvn -Prelease -DskipTests clean package -U
                 cd ../rocketmq-admintools && source bin/env.sh
-                cd ../csharp/rocketmq-client-csharp-tests/ && dotnet test --logger:\"junit;LogFilePath=../target/surefire-reports/TEST-result.xml\" -l \"console;verbosity=detailed\"
+                cd ../csharp/rocketmq-client-csharp-tests/ && dotnet test --logger:"junit;LogFilePath=../target/surefire-reports/TEST-result.xml" -l "console;verbosity=detailed"
               ALL_IP: null
             CONTAINER:
               IMAGE: cloudnativeofalibabacloud/test-runner:v0.0.4
