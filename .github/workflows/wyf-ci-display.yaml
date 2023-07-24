@@ -162,8 +162,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${TEST_REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
+              REPO_NAME: ${{ env.TEST_REPO_NAME }}
+              CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
               CODE_PATH: java/e2e
               CMD: mvn -B test
@@ -208,8 +208,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${TEST_REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
+              REPO_NAME: ${{ env.TEST_REPO_NAME }}
+              CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
               CODE_PATH: golang 
               CMD: |
@@ -257,8 +257,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${TEST_REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
+              REPO_NAME: ${{ env.TEST_REPO_NAME }}
+              CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
               CODE_PATH: java/e2e-v4
               CMD: mvn -B test
@@ -303,8 +303,8 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
-              REPO_NAME: ${TEST_REPO_NAME}
-              CODE: https://ghproxy.com/https://github.com/${TEST_REPO_NAME}
+              REPO_NAME: ${{ env.TEST_REPO_NAME }}
+              CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
               CODE_PATH: csharp
               CMD: ｜
