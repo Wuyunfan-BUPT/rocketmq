@@ -16,12 +16,12 @@
  */
 package org.apache.rocketmq.tieredstore.provider;
 
-import org.apache.rocketmq.tieredstore.provider.inputstream.TieredFileSegmentInputStream;
-
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import org.apache.rocketmq.tieredstore.provider.stream.FileSegmentInputStream;
 
 public interface TieredStoreProvider {
+
     /**
      * Get file path in backend file system
      *
@@ -30,7 +30,9 @@ public interface TieredStoreProvider {
     String getPath();
 
     /**
-     * Get file size in backend file system
+     * Get the real length of the file.
+     * Return 0 if the file does not exist,
+     * Return -1 if system get size failed.
      *
      * @return file real size
      */
@@ -47,11 +49,6 @@ public interface TieredStoreProvider {
      * Create file in backend file system
      */
     void createFile();
-
-    /**
-     * Seal file with given path in backend file system
-     */
-    void sealFile();
 
     /**
      * Destroy file with given path in backend file system
@@ -76,6 +73,5 @@ public interface TieredStoreProvider {
      * @param append try to append or create a new file
      * @return put result, <code>true</code> if data successfully write; <code>false</code> otherwise
      */
-    CompletableFuture<Boolean> commit0(TieredFileSegmentInputStream inputStream,
-                                       long position, int length, boolean append);
+    CompletableFuture<Boolean> commit0(FileSegmentInputStream inputStream,long position, int length, boolean append);
 }

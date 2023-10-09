@@ -16,34 +16,39 @@
  */
 package org.apache.rocketmq.tieredstore.provider.memory;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.apache.rocketmq.common.message.MessageQueue;
+import org.apache.rocketmq.tieredstore.common.FileSegmentType;
 import org.apache.rocketmq.tieredstore.common.TieredMessageStoreConfig;
 import org.apache.rocketmq.tieredstore.provider.TieredFileSegment;
-import org.apache.rocketmq.tieredstore.provider.inputstream.TieredFileSegmentInputStream;
+import org.apache.rocketmq.tieredstore.provider.stream.FileSegmentInputStream;
+import org.apache.rocketmq.tieredstore.util.TieredStoreUtil;
 import org.junit.Assert;
 
 public class MemoryFileSegment extends TieredFileSegment {
+
     protected final ByteBuffer memStore;
 
     public CompletableFuture<Boolean> blocker;
 
+    protected int size = 0;
+
     protected boolean checkSize = true;
 
-    public MemoryFileSegment(TieredFileSegment.FileSegmentType fileType, MessageQueue messageQueue, long baseOffset,
+    public MemoryFileSegment(FileSegmentType fileType, MessageQueue messageQueue, long baseOffset,
         TieredMessageStoreConfig storeConfig) {
-        super(fileType, messageQueue, baseOffset, storeConfig);
+        this(storeConfig, fileType, TieredStoreUtil.toPath(messageQueue), baseOffset);
+    }
+
+    public MemoryFileSegment(TieredMessageStoreConfig storeConfig,
+        FileSegmentType fileType, String filePath, long baseOffset) {
+        super(storeConfig, fileType, filePath, baseOffset);
         switch (fileType) {
             case COMMIT_LOG:
-                memStore = ByteBuffer.allocate(10000);
-                break;
-            case CONSUME_QUEUE:
-                memStore = ByteBuffer.allocate(10000);
-                break;
             case INDEX:
+            case CONSUME_QUEUE:
                 memStore = ByteBuffer.allocate(10000);
                 break;
             default:
@@ -53,9 +58,21 @@ public class MemoryFileSegment extends TieredFileSegment {
         memStore.position((int) getSize());
     }
 
+    public boolean isCheckSize() {
+        return checkSize;
+    }
+
+    public void setCheckSize(boolean checkSize) {
+        this.checkSize = checkSize;
+    }
+
+    public ByteBuffer getMemStore() {
+        return memStore;
+    }
+
     @Override
     public String getPath() {
-        return "/tiered/" + fileType + File.separator + baseOffset;
+        return filePath;
     }
 
     @Override
@@ -63,16 +80,15 @@ public class MemoryFileSegment extends TieredFileSegment {
         if (checkSize) {
             return 1000;
         }
-        return 0;
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     @Override
     public void createFile() {
-
-    }
-
-    @Override
-    public void sealFile() {
 
     }
 
@@ -86,11 +102,12 @@ public class MemoryFileSegment extends TieredFileSegment {
     }
 
     @Override
-    public CompletableFuture<Boolean> commit0(TieredFileSegmentInputStream inputStream, long position, int length,
-                                              boolean append) {
+    public CompletableFuture<Boolean> commit0(
+        FileSegmentInputStream inputStream, long position, int length, boolean append) {
+
         try {
             if (blocker != null && !blocker.get()) {
-                throw new IllegalStateException();
+                throw new IllegalStateException("Commit Exception for Memory Test");
             }
         } catch (InterruptedException | ExecutionException e) {
             Assert.fail(e.getMessage());
@@ -99,7 +116,6 @@ public class MemoryFileSegment extends TieredFileSegment {
         Assert.assertTrue(!checkSize || position >= getSize());
 
         byte[] buffer = new byte[1024];
-
         int startPos = memStore.position();
         try {
             int len;
