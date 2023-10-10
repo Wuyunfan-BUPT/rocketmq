@@ -109,7 +109,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@add_display_tools
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: Deploy rocketmq
         with: 
           yamlString: |
@@ -119,8 +119,6 @@ jobs:
             waitTimes: 1200
             velaAppDescription: rocketmq-${{ env.GITHUB_WORKFLOW }}-${{ github.run_id }}@${{ matrix.version }}
             repoName: rocketmq
-            velauxUsername: ${{ secrets.VELA_USERNAME }}
-            velauxPassword: ${{ secrets.VELA_PASSWORD }}
             helm:
               chart: ./rocketmq-k8s-helm
               git:
@@ -151,7 +149,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@add_display_tools
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with:
           yamlString: |
@@ -197,7 +195,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@add_display_tools
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with: 
           yamlString: |
@@ -246,7 +244,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@add_display_tools
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with:
           yamlString: |
@@ -292,7 +290,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@add_display_tools
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
         with:
           yamlString: |
@@ -343,12 +341,10 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@add_display_tools
+      - uses: Wuyunfan-BUPT/test-tools@main
         name: clean
         with:
           yamlString: |
             action: clean
             namespace: rocketmq-${{ github.run_id }}-${{ strategy.job-index }}
             askConfig: ${{ secrets.ASK_CONFIG_VIRGINA }}
-            velauxUsername: ${{ secrets.VELA_USERNAME }}
-            velauxPassword: ${{ secrets.VELA_PASSWORD }}
