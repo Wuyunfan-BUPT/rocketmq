@@ -69,6 +69,11 @@ jobs:
           mkdir versionlist
           touch versionlist/"${version}-`echo ${{ matrix.base-image }} | sed -e "s/:/-/g"`"
           sh ./build-image-local.sh ${version} ${{ matrix.base-image }} ${{ matrix.java-version }} ${DOCKER_REPO}
+      - uses: actions/upload-artifact@v3
+        name: Upload distribution tar
+        with:
+          name: versionlist
+          path: rocketmq-docker/image-build-ci/versionlist/*
       - name: Show version
         id: show_versions
         run: |
