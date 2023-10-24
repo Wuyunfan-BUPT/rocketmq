@@ -76,19 +76,36 @@ jobs:
           printf '%s\n' "${a[@]}" | jq -R . | jq -s .
           echo version-json=`printf '%s\n' "${a[@]}" | jq -R . | jq -s .` >> $GITHUB_OUTPUT
 
+  list-version:
+    if: always()
+    name: List version
+    needs: [ docker ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version-json: ${{ steps.show_versions.outputs.version-json }}
+    steps:
+      - uses: actions/download-artifact@v3
+        name: Download versionlist
+        with:
+          name: versionlist
+          path: versionlist
+      - name: Show versions
+        id: show_versions
+        run: |
+          a=(`ls versionlist`)
+          printf '%s\n' "${a[@]}" | jq -R . | jq -s .
+          echo version-json=`printf '%s\n' "${a[@]}" | jq -R . | jq -s .` >> $GITHUB_OUTPUT
   deploy:
     if: ${{ success() }}
     name: Deploy RocketMQ
-    needs: [docker]
+    needs: [ list-version,docker ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.docker.outputs.version-json) }}
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - name: echo name
-        run: |
-          echo "hello world"
       - uses: Wuyunfan-BUPT/test-tools@main
         name: Deploy rocketmq
         with:
@@ -119,16 +136,15 @@ jobs:
                   image:
                     repository: ${{env.DOCKER_REPO}}
                     tag: ${{ matrix.version }}
-
   test-e2e-grpc-java:
     if: ${{ success() }}
     name: Test E2E grpc java
-    needs: [docker, deploy]
+    needs: [ list-version, deploy ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.docker.outputs.version-json) }}
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
       - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
@@ -159,7 +175,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-grpc-java-log-{{ matrix.version }}.txt
+          name: test-e2e-grpc-java-log.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -169,12 +185,12 @@ jobs:
   test-e2e-golang:
     if: ${{ success() }}
     name: Test E2E golang
-    needs: [docker, deploy]
+    needs: [ list-version, deploy ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.docker.outputs.version-json) }}
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
       - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
@@ -208,7 +224,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-golang-log-{{ matrix.version }}.txt
+          name: test-e2e-golang-log.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -218,12 +234,12 @@ jobs:
   test-e2e-remoting-java:
     if: ${{ success() }}
     name: Test E2E remoting java
-    needs: [ docker, deploy ]
+    needs: [ list-version, deploy ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.docker.outputs.version-json) }}
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
       - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
@@ -254,7 +270,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-remoting-java-log-{{ matrix.version }}.txt
+          name: test-e2e-remoting-java-log.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -264,12 +280,12 @@ jobs:
   test-e2e-csharp:
     if: ${{ success() }}
     name: Test E2E csharp
-    needs: [docker, deploy]
+    needs: [ list-version, deploy ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.docker.outputs.version-json) }}
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
       - uses: Wuyunfan-BUPT/test-tools@main
         name: e2e test
@@ -303,22 +319,24 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-csharp-log-{{ matrix.version }}.txt
+          name: test-e2e-csharp-log.txt
           path: testlog.txt
       - name: add markdown
         if: always()
         run: |
           cat result.md >> $GITHUB_STEP_SUMMARY
 
+
+
   clean:
     if: always()
     name: Clean
-    needs: [docker, test-e2e-grpc-java, test-e2e-golang, test-e2e-remoting-java]
+    needs: [ list-version, test-e2e-grpc-java, test-e2e-golang, test-e2e-remoting-java ]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        version: ${{ fromJSON(needs.docker.outputs.version-json) }}
+        version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
       - uses: Wuyunfan-BUPT/test-tools@main
         name: clean
