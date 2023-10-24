@@ -75,8 +75,6 @@ jobs:
           a=(`ls rocketmq-docker/image-build-ci/versionlist`)
           printf '%s\n' "${a[@]}" | jq -R . | jq -s .
           echo version-json=`printf '%s\n' "${a[@]}" | jq -R . | jq -s .` >> $GITHUB_OUTPUT
-  
-  
 
   deploy:
     if: ${{ success() }}
@@ -118,6 +116,7 @@ jobs:
                   image:
                     repository: ${{env.DOCKER_REPO}}
                     tag: ${{ matrix.version }}
+
   test-e2e-grpc-java:
     if: ${{ success() }}
     name: Test E2E grpc java
@@ -307,8 +306,6 @@ jobs:
         if: always()
         run: |
           cat result.md >> $GITHUB_STEP_SUMMARY
-  
-  
 
   clean:
     if: always()
