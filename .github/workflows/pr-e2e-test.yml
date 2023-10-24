@@ -86,6 +86,9 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.docker.outputs.version-json) }}
     steps:
+      - name: echo name
+        run: |
+          echo "hello world"
       - uses: Wuyunfan-BUPT/test-tools@main
         name: Deploy rocketmq
         with:
