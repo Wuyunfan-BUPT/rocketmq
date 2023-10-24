@@ -157,7 +157,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-grpc-java-log.txt
+          name: test-e2e-grpc-java-log-{{ matrix.version }}.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -206,7 +206,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-golang-log.txt
+          name: test-e2e-golang-log-{{ matrix.version }}.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -252,7 +252,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-remoting-java-log.txt
+          name: test-e2e-remoting-java-log-{{ matrix.version }}.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -301,7 +301,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-csharp-log.txt
+          name: test-e2e-csharp-log-{{ matrix.version }}.txt
           path: testlog.txt
       - name: add markdown
         if: always()
