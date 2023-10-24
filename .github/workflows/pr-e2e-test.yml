@@ -9,7 +9,9 @@ on:
       - completed
 
 env:
-  DOCKER_REPO: apache/rocketmq-ci
+  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+  DOCKER_REPO: wuyfeedocker/rocketm-ci
+  TEST_REPO_NAME: apache/rocketmq-e2e
 
 jobs:
   docker:
