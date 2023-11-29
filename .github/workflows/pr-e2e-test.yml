@@ -101,6 +101,7 @@ jobs:
           a=(`ls versionlist`)
           printf '%s\n' "${a[@]}" | jq -R . | jq -s .
           echo version-json=`printf '%s\n' "${a[@]}" | jq -R . | jq -s .` >> $GITHUB_OUTPUT
+
   deploy:
     if: ${{ success() }}
     name: Deploy RocketMQ
@@ -111,7 +112,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@main
+      - uses: apache/rocketmq-test-tool@java-dev
         name: Deploy rocketmq
         with:
           yamlString: |
@@ -141,6 +142,7 @@ jobs:
                   image:
                     repository: ${{env.DOCKER_REPO}}
                     tag: ${{ matrix.version }}
+
   test-e2e-grpc-java:
     if: ${{ success() }}
     name: Test E2E grpc java
@@ -151,7 +153,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@main
+      - uses: apache/rocketmq-test-tool@java-dev
         name: e2e test
         with:
           yamlString: |
@@ -162,6 +164,7 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
+              WAIT_TIME: 900
               REPO_NAME: ${{ env.TEST_REPO_NAME }}
               CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
@@ -180,7 +183,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-grpc-java-log-{{ matrix.version }}.txt
+          name: testlog-e2e-grpc-java.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -197,7 +200,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@main
+      - uses: apache/rocketmq-test-tool@java-dev
         name: e2e test
         with:
           yamlString: |
@@ -208,6 +211,7 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
+              WAIT_TIME: 900
               REPO_NAME: ${{ env.TEST_REPO_NAME }}
               CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
@@ -229,7 +233,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-golang-log-{{ matrix.version }}.txt
+          name: testlog-e2e-golang.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -246,7 +250,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@main
+      - uses: apache/rocketmq-test-tool@java-dev
         name: e2e test
         with:
           yamlString: |
@@ -257,6 +261,7 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
+              WAIT_TIME: 900
               REPO_NAME: ${{ env.TEST_REPO_NAME }}
               CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
@@ -275,7 +280,7 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-remoting-java-log-{{ matrix.version }}.txt
+          name: testlog-e2e-remoting-java.txt
           path: testlog.txt
       - name: add markdown
         if: always()
@@ -292,7 +297,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@main
+      - uses: apache/rocketmq-test-tool@java-dev
         name: e2e test
         with:
           yamlString: |
@@ -303,6 +308,7 @@ jobs:
             KIND: Pod
             RESTART_POLICY: Never
             ENV:
+              WAIT_TIME: 900
               REPO_NAME: ${{ env.TEST_REPO_NAME }}
               CODE: https://ghproxy.com/https://github.com/${{ env.TEST_REPO_NAME }}
               BRANCH: master
@@ -324,14 +330,12 @@ jobs:
         if: always()
         name: Upload test log
         with:
-          name: test-e2e-csharp-log-{{ matrix.version }}.txt
+          name: testlog-e2e-csharp.txt
           path: testlog.txt
       - name: add markdown
         if: always()
         run: |
           cat result.md >> $GITHUB_STEP_SUMMARY
-
-
 
   clean:
     if: always()
@@ -343,7 +347,7 @@ jobs:
       matrix:
         version: ${{ fromJSON(needs.list-version.outputs.version-json) }}
     steps:
-      - uses: Wuyunfan-BUPT/test-tools@main
+      - uses: apache/rocketmq-test-tool@java-dev
         name: clean
         with:
           yamlString: |
