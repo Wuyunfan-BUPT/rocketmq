@@ -47,7 +47,7 @@ public class MessageBufferUtilTest {
         + 8 //Prepared Transaction Offset
         + 4 + 0 //BODY
         + 2 + 0 //TOPIC
-        + 2 + 30 //properties
+        + 2 + 31 //properties
         + 0;
 
     public static ByteBuffer buildMockedMessageBuffer() {
@@ -134,7 +134,6 @@ public class MessageBufferUtilTest {
         Assert.assertEquals("uk", properties.get(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX));
         Assert.assertEquals("uservalue0", properties.get("userkey"));
     }
-
 
     @Test
     public void testGetTotalSize() {
